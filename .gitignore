@@ -1,0 +1,16 @@
+# build / packaging artifacts
+build/
+dist/
+*.spec
+__pycache__/
+*.pyc
+
+# local time-tracking data
+time_data_*.json
+time_data_*.json.bak
+time_data.json
+
+# editor / OS
+.vscode/
+.DS_Store
+Thumbs.db
