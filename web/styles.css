@@ -1,0 +1,241 @@
+:root {
+  --blue: #4472C4;
+  --blue-d: #2f5597;
+  --bg: #f4f5f7;
+  --card: #ffffff;
+  --line: #d9dce1;
+  --text: #1f2430;
+  --muted: #6b7280;
+  --danger: #c0392b;
+  --ok: #0a7a4a;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.45 -apple-system, "Segoe UI", Roboto, system-ui, sans-serif;
+}
+
+/* ---------------------------------------------------------------- header */
+header {
+  background: var(--blue);
+  color: #fff;
+  padding: calc(10px + env(safe-area-inset-top, 0)) 12px 12px;
+}
+header h1 { margin: 0 0 10px; font-size: 18px; font-weight: 600; }
+
+.monthbar { display: flex; flex-direction: column; gap: 8px; }
+.mb-row { display: flex; gap: 8px; align-items: center; }
+.mb-row > label {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.mb-row #monthSelect { flex: 1 1 auto; min-width: 0; }
+.mb-row #newMonthBtn { flex: 0 0 auto; }
+.mb-json button { flex: 1 1 0; }
+
+.monthbar select,
+.monthbar button {
+  font: inherit;
+  font-size: 13px;
+  padding: 7px 8px;
+  margin: 0;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, .55);
+  background: rgba(255, 255, 255, .16);
+  color: #fff;
+}
+.monthbar select option { color: #000; }
+
+/* ------------------------------------------------------------------ tabs */
+.tabs {
+  display: flex;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+.tab {
+  flex: 1;
+  padding: 12px 4px;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  color: var(--muted);
+  border-bottom: 3px solid transparent;
+}
+.tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+main { padding: 12px; max-width: 960px; margin: 0 auto; }
+.tabpane { display: none; }
+.tabpane.active { display: block; }
+
+/* ----------------------------------------------------------------- cards */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+.card h2 { margin: 0 0 10px; font-size: 15px; }
+.card > .muted { margin: 4px 0 8px; }
+.muted { color: var(--muted); font-weight: 400; font-size: 13px; }
+
+/* --------------------------------------------------------------- form fields */
+label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+
+input[type=text],
+input[type=number],
+input[type=date],
+select,
+textarea {
+  width: 100%;
+  padding: 9px 10px;
+  margin-top: 4px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--text);
+  font: inherit;
+}
+textarea { resize: vertical; }
+input[type=checkbox] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  flex: 0 0 auto;
+  accent-color: var(--blue);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px 12px;
+}
+
+/* checkbox + text on one tidy line */
+label.inline {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-weight: 400;
+  margin-bottom: 10px;
+  line-height: 1.35;
+}
+label.inline input[type=checkbox] { margin-top: 1px; }
+label.inline > span { flex: 1; }
+
+/* ---------------------------------------------------------------- buttons */
+button {
+  cursor: pointer;
+  padding: 9px 14px;
+  border: 1px solid var(--blue);
+  background: var(--blue);
+  color: #fff;
+  border-radius: 7px;
+  font-weight: 600;
+}
+button:active { transform: translateY(1px); }
+form > button[type=submit] { margin-top: 12px; }
+#doExportBtn { margin-top: 6px; width: 100%; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+.actions.right { justify-content: flex-end; }
+button.danger { background: var(--danger); border-color: var(--danger); }
+.actions button:not(.danger):not([type=submit]) {
+  background: #eef1f6; color: var(--blue-d); border-color: var(--line);
+}
+
+/* ----------------------------------------------------------------- table */
+.tablewrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td {
+  text-align: left;
+  padding: 8px 9px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+  white-space: nowrap;
+}
+th { background: #eef1f6; position: sticky; top: 0; cursor: pointer; user-select: none; }
+th.sorted-asc::after { content: " \25B2"; }
+th.sorted-desc::after { content: " \25BC"; }
+th.num, td.num { text-align: right; }
+td.desc { white-space: normal; min-width: 180px; }
+.chkcol { width: 34px; text-align: center; cursor: default; }
+td.chkcol { text-align: center; }
+tr.selected td { background: #e5efff; }
+
+.sel-total { color: var(--ok); font-weight: 600; font-size: 13px; }
+.grand-total { margin-left: auto; color: var(--muted); font-size: 13px; }
+.per-person { margin: 10px 0 0; font-size: 13px; color: #333; }
+
+/* ------------------------------------------------------------- pick lists */
+ul.pick {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 260px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+}
+ul.pick li { padding: 10px 12px; border-bottom: 1px solid var(--line); }
+ul.pick li:last-child { border-bottom: 0; }
+ul.pick li.selected { background: #e5efff; }
+ul.pick.multi li { padding-left: 34px; position: relative; }
+ul.pick.multi li::before {
+  content: "\2610";
+  position: absolute;
+  left: 12px;
+  color: var(--muted);
+  font-size: 15px;
+}
+ul.pick.multi li.selected::before { content: "\2611"; color: var(--blue); }
+
+/* --------------------------------------------------------------- modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .4);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px 12px;
+  z-index: 50;
+  overflow-y: auto;
+}
+.modal[hidden] { display: none; }
+.modal-card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 18px;
+  width: 100%;
+  max-width: 420px;
+}
+.modal-card h2 { margin: 0 0 12px; font-size: 16px; }
+.modal-card .muted { margin: 2px 0 12px; }
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  background: #1f2430;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  z-index: 100;
+  max-width: 90vw;
+  text-align: center;
+}
+.toast[hidden] { display: none; }

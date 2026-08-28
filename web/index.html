@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#4472C4">
+<meta name="apple-mobile-web-app-title" content="Time Tracker">
+<title>Time Tracker</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="styles.css">
+<!-- ExcelJS (vendored locally) - needed for the .xlsx export. -->
+<script src="vendor/exceljs.min.js" defer></script>
+<script src="app.js" defer></script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").catch(function () { /* offline install optional */ });
+    });
+  }
+</script>
+</head>
+<body>
+<header>
+  <h1>Consultant Time Tracker</h1>
+  <div class="monthbar">
+    <div class="mb-row">
+      <label for="monthSelect">Month</label>
+      <select id="monthSelect"></select>
+      <button id="newMonthBtn" type="button">New month…</button>
+    </div>
+    <div class="mb-row mb-json">
+      <button id="importBtn" type="button" title="Load a time_data_YYYY-MM.json file">Import JSON</button>
+      <button id="exportJsonBtn" type="button" title="Download this month as JSON">Export JSON</button>
+    </div>
+    <input type="file" id="importFile" accept="application/json,.json" hidden>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" data-tab="log">Log Time</button>
+  <button class="tab" data-tab="manage">Manage</button>
+  <button class="tab" data-tab="export">Export Report</button>
+</nav>
+
+<main>
+  <!-- ------------------------------------------------------------------ LOG -->
+  <section id="tab-log" class="tabpane active">
+    <form id="addForm" class="card">
+      <h2>New entry</h2>
+      <div class="grid">
+        <label>Date<input type="date" id="f_date" required></label>
+        <label>User<select id="f_user" required></select></label>
+        <label>Project<select id="f_project" required></select></label>
+        <label>Hours<input type="text" id="f_hours" inputmode="decimal" autocomplete="off" placeholder="e.g. 7.5" required></label>
+      </div>
+      <label class="full">Description
+        <textarea id="f_desc" rows="2" required></textarea>
+      </label>
+      <button type="submit">Add entry</button>
+    </form>
+
+    <div class="card">
+      <div class="tablewrap">
+        <table id="entryTable">
+          <thead>
+            <tr>
+              <th class="chkcol"><input type="checkbox" id="selAll" title="Select all"></th>
+              <th data-sort="date">Date</th>
+              <th data-sort="user">User</th>
+              <th data-sort="project">Project</th>
+              <th data-sort="hours" class="num">Hours</th>
+              <th data-sort="description">Description</th>
+            </tr>
+          </thead>
+          <tbody id="entryBody"></tbody>
+        </table>
+      </div>
+      <div class="actions">
+        <button id="editBtn" type="button">Edit selected</button>
+        <button id="deleteBtn" type="button" class="danger">Delete selected</button>
+        <span id="selTotal" class="sel-total"></span>
+        <span id="grandTotal" class="grand-total"></span>
+      </div>
+      <p id="perPerson" class="per-person"></p>
+    </div>
+  </section>
+
+  <!-- --------------------------------------------------------------- MANAGE -->
+  <section id="tab-manage" class="tabpane">
+    <div class="card">
+      <h2>Users</h2>
+      <ul id="userList" class="pick"></ul>
+      <div class="actions">
+        <button id="addUserBtn" type="button">Add</button>
+        <button id="renameUserBtn" type="button">Rename</button>
+        <button id="removeUserBtn" type="button" class="danger">Remove</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Projects <span class="muted">(name + hourly rate)</span></h2>
+      <ul id="projectList" class="pick"></ul>
+      <div class="actions">
+        <button id="addProjectBtn" type="button">Add</button>
+        <button id="editProjectBtn" type="button">Edit</button>
+        <button id="removeProjectBtn" type="button" class="danger">Remove</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- --------------------------------------------------------------- EXPORT -->
+  <section id="tab-export" class="tabpane">
+    <div class="card">
+      <h2>Users</h2>
+      <label class="inline"><input type="checkbox" id="allUsers" checked><span>All users</span></label>
+      <p class="muted">or pick specific / multiple:</p>
+      <ul id="exUserList" class="pick multi"></ul>
+    </div>
+    <div class="card">
+      <h2>Projects</h2>
+      <label class="inline"><input type="checkbox" id="allProjects" checked><span>All projects</span></label>
+      <p class="muted">or pick specific / multiple:</p>
+      <ul id="exProjectList" class="pick multi"></ul>
+    </div>
+    <div class="card">
+      <h2>Options</h2>
+      <div class="grid">
+        <label>Date from<input type="date" id="dateFrom"></label>
+        <label>Date to<input type="date" id="dateTo"></label>
+      </div>
+      <label class="inline"><input type="checkbox" id="wantDetail" checked><span>Detail sheet <span class="muted">(one row per entry)</span></span></label>
+      <label class="inline"><input type="checkbox" id="wantSummary" checked><span>Summary sheet <span class="muted">(hours per user × project, plus rates &amp; income)</span></span></label>
+      <button id="doExportBtn" type="button">Export to Excel…</button>
+    </div>
+  </section>
+</main>
+
+<!-- entry edit modal -->
+<div id="modal" class="modal" hidden>
+  <form class="modal-card" id="editForm">
+    <h2 id="modalTitle">Edit entry</h2>
+    <label>Date<input type="date" id="m_date" required></label>
+    <label>User<select id="m_user" required></select></label>
+    <label>Project<select id="m_project" required></select></label>
+    <label>Hours<input type="text" id="m_hours" inputmode="decimal" autocomplete="off" required></label>
+    <label>Description<textarea id="m_desc" rows="3" required></textarea></label>
+    <p class="muted">Enter = save · Esc = cancel</p>
+    <div class="actions right">
+      <button type="button" id="modalCancel">Cancel</button>
+      <button type="submit">Save</button>
+    </div>
+  </form>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+</body>
+</html>
